@@ -1,0 +1,70 @@
+name: Build and Deploy Slides
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: typst-community/setup-typst@v4
+        with:
+          typst-version: "0.15.1"
+
+      - name: Build all talks
+        run: scripts/build.sh
+
+      - name: Check for overflow
+        run: |
+          for d in talks/*/; do
+            n="$(basename "$d")"; [[ "$n" == _* ]] && continue
+            scripts/check.sh "$n" || echo "::warning title=Overflow in $n::content spills onto an extra page — run scripts/check.sh $n"
+          done
+
+      - name: Prepare Pages site
+        run: |
+          mkdir -p _site
+          cp build/*.pdf _site/
+          cp assets/aic-mark-purple.svg _site/favicon.svg
+          {
+            echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            echo '<title>Talks — Herbert Ullrich</title><link rel="icon" href="favicon.svg">'
+            echo '<style>body{font-family:system-ui,sans-serif;max-width:46rem;margin:3rem auto;padding:0 1rem;color:#001838;background:#F3F6F9}a{color:#7453F8}li{margin:.5rem 0}small{color:#6A7D96}</style></head><body>'
+            echo '<h1>Talks</h1><ul>'
+            for f in $(ls build/*.pdf | grep -v -- '-handout.pdf' | sort -r); do
+              n="$(basename "$f" .pdf)"
+              echo "<li><a href=\"$n-handout.pdf\">$n</a> <small>(<a href=\"$n.pdf\">with animations</a>)</small></li>"
+            done
+            echo '</ul></body></html>'
+          } > _site/index.html
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
