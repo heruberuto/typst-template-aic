@@ -1,0 +1,9 @@
+{
+  "tinymist.rootPath": "${workspaceFolder}",
+  "tinymist.fontPaths": ["${workspaceFolder}/fonts"],
+  "tinymist.exportPdf": "never",
+  "tinymist.formatterMode": "typstyle",
+  "tinymist.preview.refresh": "onType",
+  "tinymist.dragAndDrop": "enable",
+  "tinymist.copyAndPaste": "enable"
+}
