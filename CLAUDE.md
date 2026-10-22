@@ -19,6 +19,7 @@ scripts/watch.sh <talk>                # live recompile → build/<talk>.pdf
 scripts/build.sh [talk ...]            # build/<talk>.pdf + build/<talk>-handout.pdf (all talks if none given)
 scripts/png.sh <talk> [ppi]            # build/png/<talk>/NN.png + sheet.png (contact sheet of the whole deck)
 scripts/check.sh <talk>                # overflow detection + open #todo list; exit 1 on overflow
+scripts/fresh.sh <name>                # in a repo created from the template: drop the example, create one blank talk
 ```
 
 - `<talk>` is a directory name under `talks/` or a path.

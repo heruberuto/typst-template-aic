@@ -23,6 +23,20 @@ In VS Code, install **Tinymist** (recommended in `.vscode/`) and run *Typst Prev
 
 The **handout** PDF collapses all `#pause` animations, so that's the one to email or put on the conference page. CI builds every talk on push and publishes the PDFs to GitHub Pages.
 
+## New talk as its own repo
+
+This repo is a GitHub template. A repo created from it has its own history (it's not a fork), so commits count towards your contributions:
+
+```bash
+gh repo create my-talk --template heruberuto/typst-template-aic --public --clone
+cd my-talk && scripts/fresh.sh 2026-11-venue-topic   # drop the example, create the blank talk
+git add -A && git commit -m "Blank deck" && git push
+```
+
+Then enable Pages once (Settings → Pages → Source: GitHub Actions, or `gh api -X POST repos/OWNER/my-talk/pages -f build_type=workflow`) and the handout PDF gets a stable link.
+
+To keep all talks in one repo instead, just run `scripts/new.sh <name>` here.
+
 ## Writing slides
 
 ```typst
